@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -6,7 +6,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 
 
@@ -22,7 +22,6 @@ interface PropsType {
 
 
 export default function SavingsTable(props: PropsType) {
-
 
     return (
         <TableContainer component={Paper}>
@@ -48,7 +47,9 @@ export default function SavingsTable(props: PropsType) {
                             <TableCell align="right">{row.savingsAmount}</TableCell>
                             <TableCell align="right">{row.savingsCurrency}</TableCell>
                             <TableCell align="right">{row.savingsType}</TableCell>
-                            <TableCell align="right" onClick={() => { props.handler(row.id) }}>remove</TableCell>
+                            <TableCell align="right" onClick={() => { props.handler(row.id) }}>
+                                <DeleteOutlineIcon style={{ cursor: 'pointer' }}/>
+                            </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>

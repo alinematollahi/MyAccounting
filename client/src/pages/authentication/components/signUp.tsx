@@ -11,7 +11,9 @@ import { Navigate } from "react-router";
 
 import TextField from '@mui/material/TextField';
 import { Button } from "@mui/material";
-
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
+import Spinner from 'react-bootstrap/Spinner';
 
 
 
@@ -25,7 +27,7 @@ mutation($name: String , $email: String , $password : String) {
 }
 `;
 
-function SignUp() {
+function SignUp(props: { active: any, deactive: any }) {
 
     const [addUser, { data, loading, error }] = useMutation(ADD_USER);
 
@@ -69,93 +71,108 @@ function SignUp() {
                     email: state.email
                 }
             })
+            .then(result=>console.log(result))
+            .catch(err=>console.log(err))
 
         } else {
             alert("Invalid password");
         }
     }
 
+    const showSignUpForm = (error?: string) => {
+        return (
+            <div>
+                <form onSubmit={submitHandler}>
+
+                    <TextField
+                        id="outlined-password-input"
+                        label="Name"
+                        type="text"
+                        autoComplete="current-password"
+                        value={state.name}
+                        name="name"
+                        onChange={getInputValue}
+                        fullWidth
+                        margin="normal"
+                    />
+
+                    <TextField
+                        id="outlined-password-input"
+                        label="Email"
+                        type="text"
+                        autoComplete="current-password"
+                        value={state.email}
+                        name="email"
+                        onChange={getInputValue}
+                        fullWidth
+                        margin="normal"
+                    />
+
+                    <TextField
+                        id="outlined-password-input"
+                        label="Password"
+                        type="password"
+                        autoComplete="current-password"
+                        value={state.password}
+                        name="password"
+                        onChange={getInputValue}
+                        fullWidth
+                        margin="normal"
+                    />
+
+                    <TextField
+                        id="outlined-password-input"
+                        label="Repeat Password"
+                        type="password"
+                        autoComplete="current-password"
+                        value={state.re_password}
+                        name="re_password"
+                        onChange={getInputValue}
+                        fullWidth
+                        margin="normal"
+                    />
+                    <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>
+
+                    <Grid container spacing={2}>
+                        <Grid item xs={8}>
+                            <Button variant="contained" type="submit" fullWidth> SIGN UP </Button>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Button variant="contained" type="button" fullWidth color="secondary" onClick={props.deactive}> CANCEL </Button>
+                        </Grid>
+                    </Grid>
+                </form>
+            </div>
+        );
+    }
+
+    if (loading) {
+        return (
+            <Box>
+                <Spinner animation="border" role="status" variant="primary">
+                    <span className="visually-hidden">Loading...</span>
+                </Spinner>
+            </Box>
+        );
+    }
 
     if (data) {
-        console.log(data);
+        console.log("::::::::data:::::::::",data);
         let userID = data.addUser._id;
         dispatch(logIn(userID));
 
         return (<Navigate to="/enter" />)
     }
 
-    
-
-    return (
-        <div>
-            <form onSubmit={submitHandler}>
-
-                <TextField
-                    id="outlined-password-input"
-                    label="Name"
-                    type="text"
-                    autoComplete="current-password"
-                    value={state.name}
-                    name="name"
-                    onChange={getInputValue}
-                    fullWidth
-                    margin="normal"
-                />
-
-                <TextField
-                    id="outlined-password-input"
-                    label="Email"
-                    type="text"
-                    autoComplete="current-password"
-                    value={state.email}
-                    name="email"
-                    onChange={getInputValue}
-                    fullWidth
-                    margin="normal"
-                />
-
-                <TextField
-                    id="outlined-password-input"
-                    label="Password"
-                    type="password"
-                    autoComplete="current-password"
-                    value={state.password}
-                    name="password"
-                    onChange={getInputValue}
-                    fullWidth
-                    margin="normal"
-                />
-
-                <TextField
-                    id="outlined-password-input"
-                    label="Repeat Password"
-                    type="password"
-                    autoComplete="current-password"
-                    value={state.re_password}
-                    name="re_password"
-                    onChange={getInputValue}
-                    fullWidth
-                    margin="normal"
-                />
-
-                <Button variant="contained" type="submit" fullWidth> Sign UP </Button>
-
-
-                {/*name : <input type="text" ref={node => { if (node) { name = node } }} />
-                <br />
-                email : <input type="email" ref={node => { if (node) { email = node } }} />
-                <br />
-                pass : <input type="password" ref={node => { if (node) { password = node } }} />
-                <br />
-                repeat pass : <input type="password" ref={node => { if (node) { re_password = node } }} />
-                <br />
-                <button type="submit">Sign UP</button>*/}
-
-
-            </form>
-        </div>
-    );
-
+    if (props.active) {
+        if (error) {          
+            return showSignUpForm("** User exists already **");
+        } else {
+            return showSignUpForm();
+        }
+    } else {
+        return <></>
+    }
 }
 
 export default SignUp;

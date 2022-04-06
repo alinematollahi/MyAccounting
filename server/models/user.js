@@ -39,7 +39,9 @@ const userSchema = new Schema({
             ref: 'Income'
         } 
         */
-    ]
+    ],
+    expenseCategorys : [] ,
+    incomeCategorys : [] ,
      
 });
 

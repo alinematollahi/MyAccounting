@@ -42,11 +42,11 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Box from '@mui/material/Box';
-import FetchBalance from '../fetchBalance';
+import FetchBalance from '../fetch data/fetchBalance';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
-        backgroundColor: theme.palette.common.black,
+        backgroundColor: 'gray',
         color: theme.palette.common.white,
     },
     [`&.${tableCellClasses.body}`]: {
@@ -97,14 +97,21 @@ export default function Balance() {
         return (
             <TableContainer component={Box} >
                 <Table aria-label="customized table">
+                    <TableHead>
+                        <TableRow>
+                            <StyledTableCell align="center">AMOUNT</StyledTableCell>
+                            <StyledTableCell align="center">CURRENCY</StyledTableCell>
+                            <StyledTableCell align="center">TYPE</StyledTableCell>
+                        </TableRow>
+                    </TableHead>
                     <TableBody>
                         {rows.map((row, index) => (
                             <StyledTableRow key={index}>
-                                <StyledTableCell component="th" scope="row">
+                                <StyledTableCell component="th" scope="row" align="center">
                                     {row.value}
                                 </StyledTableCell>
-                                <StyledTableCell align="right">{row.currencyName}</StyledTableCell>
-                                <StyledTableCell align="right">{row.type}</StyledTableCell>
+                                <StyledTableCell align="center">{row.currencyName}</StyledTableCell>
+                                <StyledTableCell align="center">{row.type}</StyledTableCell>
                             </StyledTableRow>
                         ))}
                     </TableBody>

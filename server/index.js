@@ -26,6 +26,7 @@ var schema = buildSchema(`
     title: String
     amount: Money
     date : String
+    category : MainCategory
   }
 
   type Income {
@@ -33,12 +34,36 @@ var schema = buildSchema(`
     title: String
     amount: Money
     date : String
+    category : MainCategory
   }
 
   type Money {
     value : Float
     currencyName : String
     type : String
+  }
+
+  type MainCategory {
+    id : String
+    categoryName : String
+    subCategory: SubCategory1
+  }
+
+  type SubCategory1 {
+    id : String
+    categoryName : String
+    subCategory: SubCategory2
+  }
+
+  type SubCategory2 {
+    id : String
+    categoryName : String
+    subCategory: SubCategory3
+  }
+
+  type SubCategory3 {
+    id : String
+    categoryName : String
   }
   
   type User {
@@ -49,6 +74,8 @@ var schema = buildSchema(`
     expenses : [Expense]
     incomes : [Income]
     balance : [Money]
+    expenseCategorys : [MainCategory]
+    incomeCategorys : [MainCategory]
   }
 
   input ExpenseInput{
@@ -56,6 +83,7 @@ var schema = buildSchema(`
     title: String
     amount: MoneyInput
     date : String
+    category : MainCategoryInput
   }
 
   input IncomeInput{
@@ -63,6 +91,7 @@ var schema = buildSchema(`
     title: String
     amount: MoneyInput
     date : String
+    category : MainCategoryInput
   }
 
   input MoneyInput{
@@ -71,18 +100,24 @@ var schema = buildSchema(`
     type : String
   }
 
+  input MainCategoryInput {
+    id : String
+    categoryName : String
+  }
+
   input UserInput {
     name : String
     email : String
     password : String
     expenses : ExpenseInput
     incomes : IncomeInput
+    expenseCategorys : MainCategoryInput
+    incomeCategorys : MainCategoryInput
   }
 
   type RootQuery{
     getUser(email : String , password : String ) : User
     getUserById(_id: ID ) : User
-
   }
 
   type RootMutation{
@@ -234,10 +269,14 @@ var root = {
         user.incomes.push({
           id: args.userInput.incomes.id,
           title: args.userInput.incomes.title,
+          date: args.userInput.incomes.date,
           amount: {
             value: args.userInput.incomes.amount.value,
             currencyName: args.userInput.incomes.amount.currencyName,
             type: args.userInput.incomes.amount.type
+          },
+          category: {
+            categoryName: args.userInput.incomes.category.categoryName
           }
         })
 
@@ -255,11 +294,12 @@ var root = {
   },
 
   updateUser: (args) => {
-    //console.log(args._id, args.userInput);
+
+    console.log("::::::::::args.userInput.:::::::::",args.userInput);
     return User.findOne({ _id: args._id })
       .then(updateUser => {
 
-        console.log(updateUser);
+        console.log(":::::::::updateUser:::::::::::::",updateUser);
 
         if (args.userInput.name) {
           updateUser.name = args.userInput.name
@@ -275,15 +315,19 @@ var root = {
 
         if (args.userInput.incomes) {
 
-          console.log("income  detect,args.userInput.incomes:", args.userInput.incomes);
+          console.log("income  detect,   args.userInput.incomes::::", args.userInput.incomes);
 
           updateUser.incomes.push({
             id: args.userInput.incomes.id,
             title: args.userInput.incomes.title,
+            date: args.userInput.incomes.date,
             amount: {
               value: args.userInput.incomes.amount.value,
               currencyName: args.userInput.incomes.amount.currencyName,
               type: args.userInput.incomes.amount.type
+            },
+            category: {
+              categoryName: args.userInput.incomes.category.categoryName
             }
           });
 
@@ -299,7 +343,7 @@ var root = {
 
               // We can't access to result of updateOne() in the next method(.then())
               // so returned result will look wrong,
-              // But, in Database evryhing is OK.
+              // But, in Database evrything is OK.
               User.updateOne({
                 _id: args._id,
                 balance: {
@@ -359,10 +403,14 @@ var root = {
 
           updateUser.expenses.push({
             title: args.userInput.expenses.title,
+            date: args.userInput.expenses.date,
             amount: {
               value: args.userInput.expenses.amount.value,
               currencyName: args.userInput.expenses.amount.currencyName,
               type: args.userInput.expenses.amount.type
+            },
+            category: {
+              categoryName: args.userInput.expenses.category.categoryName
             }
           });
 
@@ -407,6 +455,20 @@ var root = {
             })
           }
           */
+        }
+
+        if (args.userInput.expenseCategorys) {
+          console.log("::::args.userInput.expenseCategorys.categoryName:::",args.userInput.expenseCategorys.categoryName);
+          updateUser.expenseCategorys.push({
+            categoryName : args.userInput.expenseCategorys.categoryName
+          })
+        }
+
+        if (args.userInput.incomeCategorys) {
+          console.log('oooooooooooooooo');
+          updateUser.incomeCategorys.push({
+            categoryName : args.userInput.incomeCategorys.categoryName
+          })
         }
 
         return updateUser.save();

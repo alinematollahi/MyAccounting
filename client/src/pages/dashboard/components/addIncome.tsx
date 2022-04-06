@@ -21,11 +21,15 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { Button, Grid } from '@mui/material';
+import MyDatePicker from './myDatePicker';
+import { Box } from '@mui/system';
+import AddIncomeCategory from './addIncomeCategory';
+import FetchIncomeCategory from '../fetch data/fetchIncomeCategory';
 
 const ADD_INCOME = gql`
-mutation($id: ID ,$title: String, $value: Float, $currencyName: String ,$type: String) {
+mutation($id: ID ,$title: String, $date: String, $value: Float, $currencyName: String ,$type: String ,$categoryName: String) {
   updateUser(_id: $id , userInput:{incomes:
-     {title: $title, amount:{value:$value,currencyName:$currencyName,type:$type}}
+     {title: $title, date: $date, amount:{value:$value,currencyName:$currencyName,type:$type}, category:{categoryName:$categoryName}}
     }){
       _id
       name
@@ -60,17 +64,25 @@ const RE_GET_USER = gql`
 export default function AddIncome(props: { handler: any }) {
     const [updateUser, { data, loading, error }] = useMutation(ADD_INCOME);
 
+    FetchIncomeCategory();
+
+    const incomeCategory: any[] = useAppSelector(reduxStore => reduxStore.balance.incomeCategory);
+    console.log('::::::incomeCategory:::::::::',incomeCategory);
+    
+
     const ID = useAppSelector(reduxStore => reduxStore.logIn.userID)
 
 
     interface StateType {
         title: String | null
+        date: String
         amount: String | null
         type: string
         currency: string
+        category: string
     }
 
-    let initialState: StateType = { title: '', amount: '', type: '', currency: '' }
+    let initialState: StateType = { title: '', date: '', amount: '', type: '', currency: '', category: '' }
     const [state, setState] = useState(initialState)
 
     const dispatch = useDispatch();
@@ -85,7 +97,7 @@ export default function AddIncome(props: { handler: any }) {
 
             data.updateUser.balance.map(((item: { type: string; currencyName: string; title: any; value: number; }, index: number) => {
 
-                console.log(item);
+                console.log("balance---item", item);
 
 
                 if (item.type === state.type
@@ -119,6 +131,8 @@ export default function AddIncome(props: { handler: any }) {
                 dispatch(getBalance(newbalance))
 
                 setState(initialState);
+            } else {
+                setState(initialState);
             }
 
         }
@@ -131,14 +145,30 @@ export default function AddIncome(props: { handler: any }) {
 
         switch (event.target.name) {
             case "title": setState({ ...state, title: event.target.value })
-
                 break;
-            case "amount": setState({ ...state, amount: event.target.value })
+            case "amount":
+                setState({ ...state, amount: event.target.value })
                 break;
             default:
                 break;
         }
 
+    }
+
+    const handleDateInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event) {
+            let y = new Date(event.toString()).getFullYear();
+            let m = new Date(event.toString()).getMonth();
+            let d = new Date(event.toString()).getDate();
+            let date = `${d}/${m + 1}/${y}`;
+            setState({ ...state, date: date })
+        } else {
+            let y = new Date().getFullYear();
+            let m = new Date().getMonth();
+            let d = new Date().getDate();
+            let date = `${d}/${m + 1}/${y}`;
+            setState({ ...state, date: date })
+        }
     }
 
     const handleSelectChange = (event: SelectChangeEvent) => {
@@ -147,6 +177,8 @@ export default function AddIncome(props: { handler: any }) {
 
                 break;
             case "currency": setState({ ...state, currency: event.target.value })
+                break;
+            case "category": setState({ ...state, category: event.target.value })
                 break;
             default:
                 break;
@@ -158,19 +190,37 @@ export default function AddIncome(props: { handler: any }) {
 
         event.preventDefault();
 
-        if (state.amount !== null)
+        let categoryValue : string ;
+        state.category == '' ? (categoryValue = 'Other') : (categoryValue = state.category)
+
+        if (state.title !== '' && state.date !== '' && state.amount !== null && state.currency !== '' && state.type !== '') {
 
             updateUser(
                 {
                     variables: {
                         id: ID,
                         title: state.title,
+                        date: state.date,
                         value: +state.amount,
                         currencyName: state.currency,
-                        type: state.type
+                        type: state.type,
+                        categoryName: categoryValue
                     }
                 }
             )
+        } else {
+            alert('Please fill out all required fields')
+        }
+    }
+
+    const [openAddCategory,setOpenAddCategory] = useState(false);
+
+    const handleAddCategory = () =>{
+        setOpenAddCategory(true);
+    }
+
+    const closeAddCategory = () =>{
+        setOpenAddCategory(false);
     }
 
     return (
@@ -188,6 +238,10 @@ export default function AddIncome(props: { handler: any }) {
                     fullWidth
                     margin="normal"
                 />
+
+                <Box width="100%">
+                    <MyDatePicker event={handleDateInput} />
+                </Box>
 
                 <TextField
                     id="outlined-password-input"
@@ -238,6 +292,33 @@ export default function AddIncome(props: { handler: any }) {
                     </Select>
                 </FormControl>
 
+                <Grid container spacing={1}>
+                    <Grid item xs={7}>
+                        <FormControl margin="normal" fullWidth>
+                            <InputLabel id="demo-simple-select-label">Category</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={state.category}
+                                label="Category"
+                                onChange={handleSelectChange}
+                                name="category"
+                            >
+
+                                {incomeCategory.map((item, index) => {
+                                    return <MenuItem value={item.categoryName} key={index}>{item.categoryName}</MenuItem>
+                                })}
+
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={5}>
+                        <Box mt={3}>
+                            <Button variant="contained" type="button" fullWidth onClick={handleAddCategory}>new Category</Button>
+                        </Box>
+                    </Grid>
+                </Grid>
+
                 <Grid container spacing={3}>
                     <Grid item xs={8}>
                         <Button variant="contained" type="submit" fullWidth color="success"> Add Income </Button>
@@ -249,6 +330,7 @@ export default function AddIncome(props: { handler: any }) {
                     </Grid>
                 </Grid>
             </form>
+            <AddIncomeCategory active={openAddCategory} deactive={closeAddCategory}/>
         </div>
     )
 }

@@ -24,16 +24,22 @@ export default function ADD_EXP_INC(props: PropsType) {
 
     switch (props.option) {
         case 'exp':
-            return <AddExpense handler={()=>props.handler('btn')} />
+            return <AddExpense handler={() => props.handler('btn')} />
         case 'inc':
-            return <AddIncome handler={()=>props.handler('btn')} />
+            return <AddIncome handler={() => props.handler('btn')} />
         case 'btn':
             return (
                 <Box>
-                    <Button variant="contained" type="button" color="success" fullWidth onClick={()=>{
-                    props.handler('inc')}}>Add Income</Button>
-                    <Button variant="contained" type="button" fullWidth onClick={()=>{
-                    props.handler('exp')}} >Add Expense</Button>
+                    <Box mb={5}>
+                        <Button variant="contained" type="button" color="success" fullWidth onClick={() => {
+                            props.handler('inc')
+                        }}>Add Income</Button>
+                    </Box>
+                    <Box>
+                        <Button variant="contained" type="button" fullWidth onClick={() => {
+                            props.handler('exp')
+                        }} >Add Expense</Button>
+                    </Box>
                 </Box>
             )
         default:
