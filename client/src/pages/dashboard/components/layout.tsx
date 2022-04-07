@@ -15,14 +15,14 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import Grid from '@mui/material/Grid/Grid';
 import Paper from '@mui/material/Paper';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import ImportExportIcon from '@mui/icons-material/ImportExport';
 import InputIcon from '@mui/icons-material/Input';
 import IosShareIcon from '@mui/icons-material/IosShare';
+import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined';
+import CategoryIcon from '@mui/icons-material/Category';
 
 import Balance from "./balance";
 import ADD_EXP_INC from "./add_exp_inc";
@@ -31,6 +31,8 @@ import ExpenseTable from './expenseTable';
 import TransactionsTable from './transactions';
 import ExpenseCategoryTable from './expenseCategoryTable';
 import AddExpenseCategoryBox from './addExpenseCategoryBox';
+import IncomeCategoryTable from './incomeCategoryTable';
+import AddIncomeCategoryBox from './addIncomeCategoryBox';
 
 const drawerWidth = 240;
 
@@ -134,6 +136,17 @@ export default function Layout() {
         }
     }
 
+    const iconHandlerPart2 = (index: any) => {
+        switch (index) {
+            case 0:
+                return <CategoryIcon />
+            case 1:
+                return <CategoryOutlinedIcon />
+            default:
+                break;
+        }
+    }
+
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
@@ -167,9 +180,7 @@ export default function Layout() {
                     {['Assets', 'Income History', 'Expense History', 'Transactions'].map((text, index) => (
                         <ListItem button key={text}>
                             <ListItemIcon onClick={() => { setState({ option: text }) }}>
-                                {
-                                    iconHandler(index)
-                                }
+                                {iconHandler(index)}
                             </ListItemIcon>
                             <ListItemText primary={text} onClick={() => { setState({ option: text }) }} />
                         </ListItem>
@@ -177,10 +188,10 @@ export default function Layout() {
                 </List>
                 <Divider />
                 <List>
-                    {['Expense Category Page', 'Income Category Page', 'xxx'].map((text, index) => (
+                    {['Income Category Page','Expense Category Page'].map((text, index) => (
                         <ListItem button key={text}>
                             <ListItemIcon onClick={() => { setState({ option: text }) }}>
-                                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                                {iconHandlerPart2(index)}
                             </ListItemIcon>
                             <ListItemText primary={text} onClick={() => { setState({ option: text }) }} />
                         </ListItem>
@@ -273,6 +284,24 @@ function Content(props: { option: any }) {
                     </Grid>
                 </Grid>
             );
+
+            case 'Income Category Page':
+                return (
+                    <Grid container spacing={5}>
+                        <Grid item xs={12} md={7}>
+                            <Paper elevation={3}>
+                                <Box textAlign='center' fontWeight={775} py={1.5} >
+                                    CATEGORYS OF YOUR INCOMES
+                                </Box>
+                                <IncomeCategoryTable />
+                            </Paper>
+                        </Grid>
+                        <Grid item xs={12} md={5} mt={3.5}>
+                            <AddIncomeCategoryBox />
+                        </Grid>
+                    </Grid>
+                );
+    
 
         default:
             return <></>

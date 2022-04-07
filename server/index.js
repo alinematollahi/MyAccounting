@@ -118,10 +118,13 @@ var schema = buildSchema(`
   input UserEdit {
     oldExpenseCategorys : MainCategoryInput
     newExpenseCategorys : MainCategoryInput
+    oldIncomeCategorys : MainCategoryInput
+    newIncomeCategorys : MainCategoryInput
   }
 
   input RemoveItem {
     expenseCategory : MainCategoryInput
+    incomeCategory : MainCategoryInput
   }
 
   type RootQuery{
@@ -306,11 +309,11 @@ var root = {
 
   updateUser: (args) => {
 
-    console.log("::::::::::args.userInput.:::::::::",args.userInput);
+    console.log("::::::::::args.userInput.:::::::::", args.userInput);
     return User.findOne({ _id: args._id })
       .then(updateUser => {
 
-        console.log(":::::::::updateUser:::::::::::::",updateUser);
+        console.log(":::::::::updateUser:::::::::::::", updateUser);
 
         if (args.userInput.name) {
           updateUser.name = args.userInput.name
@@ -469,15 +472,15 @@ var root = {
         }
 
         if (args.userInput.expenseCategorys) {
-          console.log("::::args.userInput.expenseCategorys.categoryName:::",args.userInput.expenseCategorys.categoryName);
+          console.log("::::args.userInput.expenseCategorys.categoryName:::", args.userInput.expenseCategorys.categoryName);
           updateUser.expenseCategorys.push({
-            categoryName : args.userInput.expenseCategorys.categoryName
+            categoryName: args.userInput.expenseCategorys.categoryName
           })
         }
 
         if (args.userInput.incomeCategorys) {
           updateUser.incomeCategorys.push({
-            categoryName : args.userInput.incomeCategorys.categoryName
+            categoryName: args.userInput.incomeCategorys.categoryName
           })
         }
 
@@ -493,67 +496,102 @@ var root = {
       })
   },
 
-  editUser : (args) => {
-    console.log("::::::::::args:::::::::::",args);
+  editUser: (args) => {
+    console.log("::::::::::args:::::::::::", args);
     return User.findOne({ _id: args._id })
-    .then(user=>{
-      console.log("::::::::::user::::::::;",user);
+      .then(user => {
+        console.log("::::::::::user::::::::;", user);
 
-      if (args.userEdit.oldExpenseCategorys) {
+        if (args.userEdit.oldExpenseCategorys) {
 
-        let targetIndex = user.expenseCategorys.findIndex(item =>item.categoryName == args.userEdit.oldExpenseCategorys.categoryName)
-        user.expenseCategorys[targetIndex].categoryName = args.userEdit.newExpenseCategorys.categoryName;
+          let targetIndex = user.expenseCategorys.findIndex(item => item.categoryName == args.userEdit.oldExpenseCategorys.categoryName)
+          user.expenseCategorys[targetIndex].categoryName = args.userEdit.newExpenseCategorys.categoryName;
 
-        // save changes on database
-        User.updateOne({
-          _id: args._id,
-          expenseCategorys: {
-            $elemMatch: {
-              categoryName: args.userEdit.oldExpenseCategorys.categoryName
+          // save changes on database
+          User.updateOne({
+            _id: args._id,
+            expenseCategorys: {
+              $elemMatch: {
+                categoryName: args.userEdit.oldExpenseCategorys.categoryName
+              }
             }
-          }
-        }, {
-          $set: {
-            'expenseCategorys.$.categoryName': args.userEdit.newExpenseCategorys.categoryName
-          }
-        },
-          (err) => { console.log(err) }
-        )
-      }
+          }, {
+            $set: {
+              'expenseCategorys.$.categoryName': args.userEdit.newExpenseCategorys.categoryName
+            }
+          },
+            (err) => { console.log(err) }
+          )
+        }
 
-      return user.save();
-    })
-    .catch(err => {throw err})
+        if (args.userEdit.oldIncomeCategorys) {
+
+          let targetIndex = user.incomeCategorys.findIndex(item => item.categoryName == args.userEdit.oldIncomeCategorys.categoryName)
+          user.incomeCategorys[targetIndex].categoryName = args.userEdit.newIncomeCategorys.categoryName;
+
+          // save changes on database
+          User.updateOne({
+            _id: args._id,
+            incomeCategorys: {
+              $elemMatch: {
+                categoryName: args.userEdit.oldIncomeCategorys.categoryName
+              }
+            }
+          }, {
+            $set: {
+              'incomeCategorys.$.categoryName': args.userEdit.newIncomeCategorys.categoryName
+            }
+          },
+            (err) => { console.log(err) }
+          )
+        }
+
+        return user.save();
+      })
+      .catch(err => { throw err })
   },
 
-  removeUserItem : (args) => {
-    console.log("::::::::::args:::::::::::",args);
+  removeUserItem: (args) => {
     return User.findOne({ _id: args._id })
-    .then(user => {
-      console.log("::::::::::user::::::::;",user);
+      .then(user => {
 
-      let newExpenseCategorys=[];
+        let newExpenseCategorys = user.expenseCategorys;
+        let newIncomeCategorys = user.incomeCategorys;
 
-      if(args.removeItem.expenseCategory){
-        console.log('oooooooooooooooooooooooooookkkkkkkkkkkkkkkkkkkk');
-        newExpenseCategorys = user.expenseCategorys.filter(item=>item.categoryName !== args.removeItem.expenseCategory.categoryName)
-      }
-      user.expenseCategorys = newExpenseCategorys;
+        if (args.removeItem.expenseCategory) {
+          newExpenseCategorys = user.expenseCategorys.filter(item => item.categoryName !== args.removeItem.expenseCategory.categoryName)
 
-      User.updateOne({
-        _id: args._id,
-      }, {
-        $pull: {
-          expenseCategorys: {categoryName : args.removeItem.expenseCategory.categoryName}
+          User.updateOne({
+            _id: args._id,
+          }, {
+            $pull: {
+              expenseCategorys: { categoryName: args.removeItem.expenseCategory.categoryName }
+            }
+          },
+            (err) => { console.log(err) }
+          )
         }
-      },
-        (err) => { console.log(err) }
-      )
 
-      console.log(':::::::::::::::updated user==========>>',user);
-      return user.save();
-    })
-    .catch(err => {throw err})
+        if (args.removeItem.incomeCategory) {
+          newIncomeCategorys = user.incomeCategorys.filter(item => item.categoryName !== args.removeItem.incomeCategory.categoryName)
+
+          User.updateOne({
+            _id: args._id,
+          }, {
+            $pull: {
+              incomeCategorys: { categoryName: args.removeItem.incomeCategory.categoryName }
+            }
+          },
+            (err) => { console.log(err) }
+          )
+        }
+
+        user.expenseCategorys = newExpenseCategorys;
+        user.incomeCategorys = newIncomeCategorys;
+
+        return user.save();
+      })
+      .catch(err => { throw err })
   }
 };
 
