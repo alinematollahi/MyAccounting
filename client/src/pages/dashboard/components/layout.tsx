@@ -29,6 +29,8 @@ import ADD_EXP_INC from "./add_exp_inc";
 import IncomeTable from "./incomeTable";
 import ExpenseTable from './expenseTable';
 import TransactionsTable from './transactions';
+import ExpenseCategoryTable from './expenseCategoryTable';
+import AddExpenseCategoryBox from './addExpenseCategoryBox';
 
 const drawerWidth = 240;
 
@@ -175,12 +177,12 @@ export default function Layout() {
                 </List>
                 <Divider />
                 <List>
-                    {['xxx', 'xxx', 'xxx'].map((text, index) => (
+                    {['Expense Category Page', 'Income Category Page', 'xxx'].map((text, index) => (
                         <ListItem button key={text}>
-                            <ListItemIcon>
+                            <ListItemIcon onClick={() => { setState({ option: text }) }}>
                                 {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
                             </ListItemIcon>
-                            <ListItemText primary={text} onClick={() => { alert(text) }} />
+                            <ListItemText primary={text} onClick={() => { setState({ option: text }) }} />
                         </ListItem>
                     ))}
                 </List>
@@ -253,6 +255,23 @@ function Content(props: { option: any }) {
                     </Box>
                     <TransactionsTable />
                 </Paper>
+            );
+
+        case 'Expense Category Page':
+            return (
+                <Grid container spacing={5}>
+                    <Grid item xs={12} md={7}>
+                        <Paper elevation={3}>
+                            <Box textAlign='center' fontWeight={775} py={1.5} >
+                                CATEGORYS OF YOUR EXPENSES
+                            </Box>
+                            <ExpenseCategoryTable />
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={12} md={5} mt={3.5}>
+                        <AddExpenseCategoryBox />
+                    </Grid>
+                </Grid>
             );
 
         default:

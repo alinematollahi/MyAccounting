@@ -115,6 +115,15 @@ var schema = buildSchema(`
     incomeCategorys : MainCategoryInput
   }
 
+  input UserEdit {
+    oldExpenseCategorys : MainCategoryInput
+    newExpenseCategorys : MainCategoryInput
+  }
+
+  input RemoveItem {
+    expenseCategory : MainCategoryInput
+  }
+
   type RootQuery{
     getUser(email : String , password : String ) : User
     getUserById(_id: ID ) : User
@@ -124,6 +133,8 @@ var schema = buildSchema(`
     addUser (userInput: UserInput) : User
     addInitialIncome(_id: ID, userInput: UserInput): User
     updateUser(_id: ID , userInput: UserInput) : User
+    editUser(_id: ID , userEdit: UserEdit) : User
+    removeUserItem(_id: ID , removeItem: RemoveItem) : User
   }
 
   schema {
@@ -465,7 +476,6 @@ var root = {
         }
 
         if (args.userInput.incomeCategorys) {
-          console.log('oooooooooooooooo');
           updateUser.incomeCategorys.push({
             categoryName : args.userInput.incomeCategorys.categoryName
           })
@@ -481,8 +491,70 @@ var root = {
       .catch(err => {
         throw err;
       })
-  }
+  },
 
+  editUser : (args) => {
+    console.log("::::::::::args:::::::::::",args);
+    return User.findOne({ _id: args._id })
+    .then(user=>{
+      console.log("::::::::::user::::::::;",user);
+
+      if (args.userEdit.oldExpenseCategorys) {
+
+        let targetIndex = user.expenseCategorys.findIndex(item =>item.categoryName == args.userEdit.oldExpenseCategorys.categoryName)
+        user.expenseCategorys[targetIndex].categoryName = args.userEdit.newExpenseCategorys.categoryName;
+
+        // save changes on database
+        User.updateOne({
+          _id: args._id,
+          expenseCategorys: {
+            $elemMatch: {
+              categoryName: args.userEdit.oldExpenseCategorys.categoryName
+            }
+          }
+        }, {
+          $set: {
+            'expenseCategorys.$.categoryName': args.userEdit.newExpenseCategorys.categoryName
+          }
+        },
+          (err) => { console.log(err) }
+        )
+      }
+
+      return user.save();
+    })
+    .catch(err => {throw err})
+  },
+
+  removeUserItem : (args) => {
+    console.log("::::::::::args:::::::::::",args);
+    return User.findOne({ _id: args._id })
+    .then(user => {
+      console.log("::::::::::user::::::::;",user);
+
+      let newExpenseCategorys=[];
+
+      if(args.removeItem.expenseCategory){
+        console.log('oooooooooooooooooooooooooookkkkkkkkkkkkkkkkkkkk');
+        newExpenseCategorys = user.expenseCategorys.filter(item=>item.categoryName !== args.removeItem.expenseCategory.categoryName)
+      }
+      user.expenseCategorys = newExpenseCategorys;
+
+      User.updateOne({
+        _id: args._id,
+      }, {
+        $pull: {
+          expenseCategorys: {categoryName : args.removeItem.expenseCategory.categoryName}
+        }
+      },
+        (err) => { console.log(err) }
+      )
+
+      console.log(':::::::::::::::updated user==========>>',user);
+      return user.save();
+    })
+    .catch(err => {throw err})
+  }
 };
 
 var app = express();
