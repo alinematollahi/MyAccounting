@@ -83,7 +83,8 @@ export default function AddIncome(props: { handler: any }) {
     }
 
     let initialState: StateType = { title: '', date: '', amount: '', type: '', currency: '', category: '' }
-    const [state, setState] = useState(initialState)
+    const [state, setState] = useState(initialState);
+    const [refreshDate, setRefreshDate] = useState(false);
 
     const dispatch = useDispatch();
 
@@ -133,6 +134,7 @@ export default function AddIncome(props: { handler: any }) {
                 setState(initialState);
             } else {
                 setState(initialState);
+                setRefreshDate(true);
             }
 
         }
@@ -240,7 +242,10 @@ export default function AddIncome(props: { handler: any }) {
                 />
 
                 <Box width="100%">
-                    <MyDatePicker event={handleDateInput} />
+                <MyDatePicker event={handleDateInput}
+                     refresh={refreshDate}
+                     handleRefreshDate={()=>setRefreshDate(false)}
+                     />
                 </Box>
 
                 <TextField

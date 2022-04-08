@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
     useMutation,
@@ -21,9 +21,6 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { Box, Button, Grid } from '@mui/material';
 import MyDatePicker from './myDatePicker';
-import Backdrop from '@mui/material/Backdrop';
-import CircularProgress from '@mui/material/CircularProgress';
-import Paper from '@mui/material/Paper';
 import AddExpenseCategory from './addExpenseCategory';
 import FetchExpenseCategory from '../fetch data/fetchExpenseCategory';
 
@@ -52,8 +49,6 @@ export default function AddExpense(props: { handler: any }) {
     FetchExpenseCategory();
 
     const expenseCategory: any [] = useAppSelector(reduxStore => reduxStore.balance.expenseCategory);
-    console.log('::::::::::expenseCategory::::::::::',expenseCategory);
-
 
     const ID = useAppSelector(reduxStore => reduxStore.logIn.userID)
     const balance = useAppSelector(reduxStore => reduxStore.balance.balance);
@@ -88,7 +83,8 @@ export default function AddExpense(props: { handler: any }) {
     }
 
     let initialState: StateType = { title: '', date: '', amount: '', type: initialType, currency: initialCurrency, category: '' }
-    const [state, setState] = useState(initialState)
+    const [state, setState] = useState(initialState);
+    const [refreshDate, setRefreshDate] = useState(false);
 
     const dispatch = useDispatch();
 
@@ -113,6 +109,7 @@ export default function AddExpense(props: { handler: any }) {
             })
 
             setState(initialState);
+            setRefreshDate(true);
         }
     }, [data])
 
@@ -227,7 +224,10 @@ export default function AddExpense(props: { handler: any }) {
                 />
 
                 <Box width="100%">
-                    <MyDatePicker event={handleDateInput} />
+                    <MyDatePicker event={handleDateInput}
+                     refresh={refreshDate}
+                     handleRefreshDate={()=>setRefreshDate(false)}
+                     />
                 </Box>
 
                 <TextField
