@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {FormEvent, useState, useEffect } from "react";
 
 import { useAppSelector } from '../../redux/hooks';
 
@@ -78,17 +78,33 @@ function EntrancePage() {
 
 
 
-    const addSavingsHandler = () => {
+    const addSavingsHandler = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
 
         if (state.amount && state.type && state.currency) {
 
-            let savingItems = {
-                savingsAmount: state.amount,
-                savingsType: state.type,
-                savingsCurrency: state.currency,
-                id: Math.random()
+            let match = false;
+            let matchIndex: number = -1;
+
+            savings.map((item, index) => {
+                if (item.savingsType == state.type && item.savingsCurrency == state.currency) {
+                    match = true;
+                    matchIndex = index;
+                }
+            })
+
+            if (match) {
+                savings[matchIndex].savingsAmount = state.amount;
+            } else {
+                let savingItems = {
+                    savingsAmount: state.amount,
+                    savingsType: state.type,
+                    savingsCurrency: state.currency,
+                    id: Math.random()
+                }
+                savings.push(savingItems)
             }
-            savings.push(savingItems)
+
             setState({ ...state, savings: savings });
             setState({ ...state, amount: '', type: '', currency: '' });
 
@@ -136,7 +152,7 @@ function EntrancePage() {
     let m = new Date().getMonth();
     let d = new Date().getDate();
     let initialDate = `${d}/${m + 1}/${y}`;
-    
+
     const confirmHandler = () => {
 
         if (state.savings.length > 0) {
@@ -174,59 +190,61 @@ function EntrancePage() {
 
             <Grid container spacing={5}>
                 <Grid item xs={12} sm={formWidth} mt={5} mx="auto">
-                    <Box textAlign="center">
-                        <h2>{text}</h2>
-                    </Box>
-                    <TextField
-                        id="outlined-password-input"
-                        label="amount"
-                        autoComplete="current-password"
-                        value={state.amount}
-                        name="amount"
-                        onChange={getInputValue}
-                        fullWidth
-                        margin="normal"
-                        inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                    />
+                    <form onSubmit={addSavingsHandler}>
+                        <Box textAlign="center">
+                            <h2>{text}</h2>
+                        </Box>
+                        <TextField
+                            id="outlined-password-input"
+                            label="amount"
+                            autoComplete="current-password"
+                            value={state.amount}
+                            name="amount"
+                            onChange={getInputValue}
+                            fullWidth
+                            margin="normal"
+                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                        />
 
 
-                    <FormControl fullWidth margin="normal">
-                        <InputLabel id="demo-simple-select-label">Type</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={state.type}
-                            label="Type"
-                            onChange={handleSelectChange}
-                            name="type"
-                        >
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel id="demo-simple-select-label">Type</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={state.type}
+                                label="Type"
+                                onChange={handleSelectChange}
+                                name="type"
+                            >
 
-                            {moneyTypeList.map((item, index) => {
-                                return <MenuItem value={item} key={index}>{item}</MenuItem>
-                            })}
+                                {moneyTypeList.map((item, index) => {
+                                    return <MenuItem value={item} key={index}>{item}</MenuItem>
+                                })}
 
-                        </Select>
-                    </FormControl>
+                            </Select>
+                        </FormControl>
 
-                    <FormControl fullWidth margin="normal">
-                        <InputLabel id="demo-simple-select-label">Currency</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={state.currency}
-                            label="Currency"
-                            onChange={handleSelectChange}
-                            name="currency"
-                        >
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel id="demo-simple-select-label">Currency</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={state.currency}
+                                label="Currency"
+                                onChange={handleSelectChange}
+                                name="currency"
+                            >
 
-                            {currencyList.map((item, index) => {
-                                return <MenuItem value={item} key={index}>{item}</MenuItem>
-                            })}
+                                {currencyList.map((item, index) => {
+                                    return <MenuItem value={item} key={index}>{item}</MenuItem>
+                                })}
 
-                        </Select>
-                    </FormControl>
+                            </Select>
+                        </FormControl>
 
-                    <Button variant="contained" type="button" fullWidth onClick={addSavingsHandler}>Add</Button>
+                        <Button variant="contained" type="submit" fullWidth >Add</Button>
+                    </form>
                 </Grid>
                 <Grid item sm={8} xs={12} mt={16} display={showTable}>
                     <SavingsTable rowsData={state.savings} handler={removeHandler} />

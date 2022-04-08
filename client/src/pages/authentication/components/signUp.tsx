@@ -13,7 +13,7 @@ import TextField from '@mui/material/TextField';
 import { Button } from "@mui/material";
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
-import Spinner from 'react-bootstrap/Spinner';
+import CircularProgress from '@mui/material/CircularProgress';
 
 
 
@@ -148,10 +148,18 @@ function SignUp(props: { active: any, deactive: any }) {
 
     if (loading) {
         return (
-            <Box>
-                <Spinner animation="border" role="status" variant="primary">
-                    <span className="visually-hidden">Loading...</span>
-                </Spinner>
+            <Box >
+                <CircularProgress
+                    size={50}
+                    sx={{
+                        position: 'relative',
+                        top: '0%',
+                        left: '50%',
+                        marginTop: '-12px',
+                        marginLeft: '-12px',
+                        zIndex: 1,
+                    }}
+                />
             </Box>
         );
     }

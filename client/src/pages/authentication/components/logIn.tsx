@@ -14,7 +14,6 @@ import { Button } from "@mui/material";
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
-//import Spinner from 'react-bootstrap/Spinner';
 
 const GET_USER = gql`
 query ($email: String , $password : String){
@@ -100,7 +99,17 @@ function Login(props: { active: any, deactive: any }) {
     if (loading) {
         return (
             <Box >
-                <CircularProgress />
+                <CircularProgress
+                    size={50}
+                    sx={{
+                        position: 'relative',
+                        top: '0%',
+                        left: '50%',
+                        marginTop: '-12px',
+                        marginLeft: '-12px',
+                        zIndex: 1,
+                    }}
+                />
             </Box>
         );
     }
