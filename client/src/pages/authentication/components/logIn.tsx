@@ -122,7 +122,13 @@ function Login(props: { active: any, deactive: any }) {
 
     if (props.active) {
         if (error) {
-            return showLogInForm("** Ivalid Inputs **");
+            
+            if(error.message == 'Invalid input'){
+                return showLogInForm("** Ivalid Inputs **");    
+            }else {
+                return showLogInForm("** Server Error , Try Again **");
+            }     
+            
         } else {
             return showLogInForm();
         }

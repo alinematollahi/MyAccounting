@@ -173,8 +173,12 @@ function SignUp(props: { active: any, deactive: any }) {
     }
 
     if (props.active) {
-        if (error) {          
-            return showSignUpForm("** User exists already **");
+        if (error) {     
+            if(error.message == 'User exists already'){
+                return showSignUpForm("** User already exists  **");    
+            }else {
+                return showSignUpForm("** Server Error , Try Again **");
+            }      
         } else {
             return showSignUpForm();
         }

@@ -17,8 +17,8 @@ import {
 
 
 const client = new ApolloClient({
-  uri: 'http://localhost:4000/graphql',
-  //uri: 'https://accounting-server2022.herokuapp.com/graphql',
+  //uri: 'http://localhost:4000/graphql',
+  uri: 'https://accounting-server2022.herokuapp.com/graphql',
   cache: new InMemoryCache()
 });
 

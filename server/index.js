@@ -625,8 +625,8 @@ app.use('/graphql', graphqlHTTP({
 
 mongoose.connect('mongodb+srv://admin:Ali1234@cluster0.ig7m8.mongodb.net/testdb?retryWrites=true&w=majority'
 ).then(() => {
-  app.listen(4000);
-  console.log('Running a GraphQL API server at http://localhost:4000/graphql');
+  const port = process.env.PORT || 4000;
+  app.listen(port, () => console.log(`Running a GraphQL API server at port ${port}`));
 }).catch(err => {
   console.log(err);
 })
